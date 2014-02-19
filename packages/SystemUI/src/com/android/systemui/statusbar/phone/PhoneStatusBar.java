@@ -464,6 +464,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.NAVBAR_LEFT_IN_LANDSCAPE), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.USE_SLIM_RECENTS), false, this,
+                    UserHandle.USER_ALL);
             update();
         }
 
@@ -472,6 +475,31 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             super.unobserve();
             ContentResolver resolver = mContext.getContentResolver();
             resolver.unregisterContentObserver(this);
+        }
+
+        public void onChange(boolean selfChange, Uri uri) {
+            if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.HEADS_UP_NOTIFCATION_DECAY))) {
+                    mHeadsUpNotificationDecay = Settings.System.getIntForUser(
+                            mContext.getContentResolver(),
+                            Settings.System.HEADS_UP_NOTIFCATION_DECAY,
+                            mContext.getResources().getInteger(
+                            R.integer.heads_up_notification_decay),
+                            UserHandle.USER_CURRENT);
+                    resetHeadsUpDecayTimer();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_TICKER_ENABLED))) {
+                    mTickerEnabled = Settings.System.getIntForUser(
+                            mContext.getContentResolver(),
+                            Settings.System.STATUS_BAR_TICKER_ENABLED,
+                            mContext.getResources().getBoolean(R.bool.enable_ticker)
+                            ? 1 : 0, UserHandle.USER_CURRENT) != 0;
+                    initTickerView();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.USE_SLIM_RECENTS))) {
+                updateRecents();
+            }
+            update();
         }
 
         @Override
