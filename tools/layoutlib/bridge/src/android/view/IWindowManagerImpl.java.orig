@@ -493,10 +493,23 @@ public class IWindowManagerImpl implements IWindowManager {
         // TODO Auto-generated method stub
         return null;
     }
+<<<<<<< HEAD
+=======
+
+    @Override
+    public boolean hasPermanentMenuKey() {
+        return true;
+    }
+
+    /* @hide */
+    @Override
+    public void toggleGlobalMenu() {
+    }
 
     /* @hide */
     @Override
     public int getSystemUIVisibility() {
         return 0;
     }
+>>>>>>> 4961e30... Frameworks: Slim recent app screen [PS:14]
 }

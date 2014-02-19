@@ -1143,28 +1143,53 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     protected void toggleRecents() {
+<<<<<<< HEAD
         if (mRecents != null) {
             sendCloseSystemWindows(mContext, SYSTEM_DIALOG_REASON_RECENT_APPS);
             mRecents.toggleRecents(mDisplay, mLayoutDirection, getStatusBarView());
+=======
+        if (isOmniSwitchEnabled()) {
+            Intent showIntent = new Intent(OmniSwitchConstants.ACTION_TOGGLE_OVERLAY);
+            mContext.sendBroadcastAsUser(showIntent, UserHandle.CURRENT);
+        } else {
+            if (mRecents != null) {
+                sendCloseSystemWindows(mContext, SYSTEM_DIALOG_REASON_RECENT_APPS);
+                mRecents.toggleRecents(mDisplay, mLayoutDirection, getStatusBarView());
         } else if (mSlimRecents != null) {
                 sendCloseSystemWindows(mContext, SYSTEM_DIALOG_REASON_RECENT_APPS);
                 mSlimRecents.toggleRecents(mDisplay, mLayoutDirection, getStatusBarView());
+            }
+>>>>>>> 4961e30... Frameworks: Slim recent app screen [PS:14]
         }
     }
 
     protected void preloadRecents() {
+<<<<<<< HEAD
+        if (mRecents != null) {
+            mRecents.preloadRecents();
+=======
+        if (!isOmniSwitchEnabled()) {
         if (mRecents != null) {
             mRecents.preloadRecents();
         } else if (mSlimRecents != null) {
             mSlimRecents.preloadRecentTasksList();
+            }
+>>>>>>> 4961e30... Frameworks: Slim recent app screen [PS:14]
         }
     }
 
     protected void cancelPreloadingRecents() {
+<<<<<<< HEAD
+        if (mRecents != null) {
+            mRecents.cancelPreloadingRecents();
+=======
+        if (!isOmniSwitchEnabled()) {
         if (mRecents != null) {
             mRecents.cancelPreloadingRecents();
         } else if (mSlimRecents != null) {
             mSlimRecents.cancelPreloadingRecentTasksList();
+            }
+>>>>>>> 4961e30... Frameworks: Slim recent app screen [PS:14]
         }
     }
 

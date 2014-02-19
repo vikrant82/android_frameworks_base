@@ -8,6 +8,33 @@
         <item name="android:textColor">@color/status_bar_traffic_color</item>
     </style>
 
+<<<<<<< HEAD
+=======
+    <!-- App Circle sidebar -->
+    <style name="ListTheme" parent="@*android:style/Theme.Holo">
+        <item name="android:windowBackground">@*android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:listSelector">@*android:color/transparent</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:clipChildren">false</item>
+        <item name="android:overScrollMode">never</item>
+        <item name="android:divider">@null</item>
+    </style>
+
+    <!-- App side bar -->
+    <style name="AppSidebarItemText" >
+        <item name="android:textColor">@color/sidebar_item_text_color</item>
+        <item name="android:textSize">@dimen/item_title_text_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center</item>
+        <item name="android:shadowColor">@color/sidebar_item_text_shadow_color</item>
+        <item name="android:shadowRadius">1.0</item>
+        <item name="android:shadowDx">2.0</item>
+        <item name="android:shadowDy">2.0</item>
+    </style>  
+
     <!-- Slim recents -->
     <style name="card.header_simple_title">
         <item name="android:textSize">@dimen/recent_text_size</item>
@@ -64,5 +91,5 @@
         <item name="android:padding">@dimen/card_expand_layout_padding</item>
     </style>
 
-
+>>>>>>> 4961e30... Frameworks: Slim recent app screen [PS:14]
 </resources>
