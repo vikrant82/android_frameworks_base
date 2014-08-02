@@ -83,6 +83,10 @@ public final class PowerManagerService extends IPowerManager.Stub
         implements Watchdog.Monitor {
     private static final String TAG = "PowerManagerService";
 
+    private static long buttonNextTimeout = -1;
+    private static int buttonBrightness = 0;
+
+    
     private static final boolean DEBUG = false;
     private static final boolean DEBUG_SPEW = DEBUG && true;
 
@@ -198,13 +202,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     private DreamManagerService mDreamManager;
     private AutoBrightnessHandler mAutoBrightnessHandler;
     private LightsService.Light mAttentionLight;
-    private LightsService.Light mButtonsLight;
+    private static LightsService.Light mButtonsLight;
     private LightsService.Light mKeyboardLight;
     private LightsService.Light mCapsLight;
     private LightsService.Light mFnLight;
 
-    private int mButtonTimeout;
-    private int mButtonBrightness;
+    private static int mButtonTimeout;
+    private static int mButtonBrightness;
     private int mButtonBrightnessSettingDefault;
     private int mKeyboardBrightness;
     private int mKeyboardBrightnessSettingDefault;
@@ -1671,6 +1675,14 @@ public final class PowerManagerService extends IPowerManager.Stub
             }
         }
     }
+    
+    
+    static public void buttonsLightON() {
+	    long timing = SystemClock.uptimeMillis();
+	    mButtonsLight.setBrightness(buttonBrightness);
+	    buttonNextTimeout = timing + mButtonTimeout;
+    }
+    
 
     /**
      * Updates the value of mUserActivitySummary to summarize the user requested
@@ -1694,7 +1706,7 @@ public final class PowerManagerService extends IPowerManager.Stub
                     nextTimeout = mLastUserActivityTime
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
-                        int buttonBrightness, keyboardBrightness;
+                        int keyboardBrightness;
                         if (mButtonBrightnessOverrideFromWindowManager >= 0) {
                             buttonBrightness = mButtonBrightnessOverrideFromWindowManager;
                             keyboardBrightness = mButtonBrightnessOverrideFromWindowManager;
@@ -1707,7 +1719,8 @@ public final class PowerManagerService extends IPowerManager.Stub
                         if (mButtonTimeout != 0 && now > mLastUserActivityTime + mButtonTimeout) {
                             mButtonsLight.setBrightness(0);
                         } else {
-                            mButtonsLight.setBrightness(buttonBrightness);
+                            //mButtonsLight.setBrightness(buttonBrightness);
+			    if (now > buttonNextTimeout) mButtonsLight.setBrightness(0);
                             if (buttonBrightness != 0 && mButtonTimeout != 0) {
                                 nextTimeout = now + mButtonTimeout;
                             }
