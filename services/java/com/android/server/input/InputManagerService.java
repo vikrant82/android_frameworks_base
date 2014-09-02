@@ -89,6 +89,8 @@ import java.util.HashSet;
 
 import libcore.io.Streams;
 import libcore.util.Objects;
+import com.android.server.power.PowerManagerService;
+
 
 /*
  * Wraps the C++ InputManager and provides its callbacks.
@@ -1419,11 +1421,16 @@ public class InputManagerService extends IInputManager.Stub
         return true;
     }
 
-    // Native callback.
-    private int interceptKeyBeforeQueueing(KeyEvent event, int policyFlags, boolean isScreenOn) {
-        return mWindowManagerCallbacks.interceptKeyBeforeQueueing(
-                event, policyFlags, isScreenOn);
+    private int interceptKeyBeforeQueueing(KeyEvent event, int policyFlags,
+		    boolean isScreenOn) {
+	    if ((event.getScanCode() == 139 || event.getScanCode() == 158)
+			    && event.getAction() == 0) {
+		    PowerManagerService.buttonsLightON();
+	    }
+	    return mWindowManagerCallbacks.interceptKeyBeforeQueueing(event,
+			    policyFlags, isScreenOn);
     }
+
 
     // Native callback.
     private int interceptMotionBeforeQueueingWhenScreenOff(int policyFlags) {
