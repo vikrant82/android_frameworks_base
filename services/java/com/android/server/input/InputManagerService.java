@@ -1423,10 +1423,12 @@ public class InputManagerService extends IInputManager.Stub
 
     private int interceptKeyBeforeQueueing(KeyEvent event, int policyFlags,
 		    boolean isScreenOn) {
-	    if ((event.getScanCode() == 139 || event.getScanCode() == 158)
+	    if ((event.getScanCode() == 172 || event.getScanCode() == 158
+		    || event.getScanCode() == 254)
 			    && event.getAction() == 0) {
 		    PowerManagerService.buttonsLightON();
 	    }
+	    Slog.e(TAG, "Pressed: " + event.getScanCode() + " with action " + event.getAction());
 	    return mWindowManagerCallbacks.interceptKeyBeforeQueueing(event,
 			    policyFlags, isScreenOn);
     }
