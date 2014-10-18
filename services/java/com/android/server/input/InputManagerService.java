@@ -1428,7 +1428,7 @@ public class InputManagerService extends IInputManager.Stub
 			    && event.getAction() == 0) {
 		    PowerManagerService.buttonsLightON();
 	    }
-	    Slog.e(TAG, "Pressed: " + event.getScanCode() + " with action " + event.getAction());
+	    //Slog.e(TAG, "Pressed: " + event.getScanCode() + " with action " + event.getAction());
 	    return mWindowManagerCallbacks.interceptKeyBeforeQueueing(event,
 			    policyFlags, isScreenOn);
     }
