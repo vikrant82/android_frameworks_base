@@ -118,7 +118,6 @@ import com.android.internal.telephony.ITelephony;
 import com.android.internal.util.gesture.EdgeGesturePosition;
 import com.android.internal.util.gesture.EdgeServiceConstants;
 import com.android.internal.widget.PointerLocationView;
-import com.android.server.power.PowerManagerService;
 
 import java.io.File;
 import java.io.FileReader;
@@ -4625,7 +4624,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 			    || scanCode == 254)
 				    && event.getAction() == 0
 				    && !isScreenOn) {
-			    PowerManagerService.buttonsLightON();
+			    mPowerManager.buttonsLightOn();
 		    }
 
         if (SystemProperties.getInt("sys.quickboot.enable", 0) == 1) {

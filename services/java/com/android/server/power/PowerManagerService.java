@@ -201,13 +201,13 @@ public final class PowerManagerService extends IPowerManager.Stub
     private DreamManagerService mDreamManager;
     private AutoBrightnessHandler mAutoBrightnessHandler;
     private LightsService.Light mAttentionLight;
-    private static LightsService.Light mButtonsLight;
+    private LightsService.Light mButtonsLight;
     private LightsService.Light mKeyboardLight;
     private LightsService.Light mCapsLight;
     private LightsService.Light mFnLight;
 
-    private static int mButtonTimeout;
-    private static int mButtonBrightness;
+    private int mButtonTimeout;
+    private int mButtonBrightness;
     private int mButtonBrightnessSettingDefault;
     private int mKeyboardBrightness;
     private int mKeyboardBrightnessSettingDefault;
@@ -1708,7 +1708,7 @@ public final class PowerManagerService extends IPowerManager.Stub
     }
     
     
-    static public void buttonsLightON() {
+    public void buttonsLightON() {
 	    long timing = SystemClock.uptimeMillis();
 	    mButtonsLight.setBrightness(buttonBrightness);
 	    buttonNextTimeout = timing + mButtonTimeout;
