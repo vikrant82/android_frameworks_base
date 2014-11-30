@@ -1751,7 +1751,7 @@ public final class PowerManagerService extends IPowerManager.Stub
                             mButtonsLight.setBrightness(0);
                         } else {
                             //mButtonsLight.setBrightness(buttonBrightness);
-			    if (now > buttonNextTimeout) mButtonsLight.setBrightness(0);
+                        if (now > buttonNextTimeout) mButtonsLight.setBrightness(0);
                             if (buttonBrightness != 0 && mButtonTimeout != 0) {
                                 nextTimeout = now + mButtonTimeout;
                             }
