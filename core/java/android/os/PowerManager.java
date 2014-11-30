@@ -1008,6 +1008,8 @@ public final class PowerManager {
     }
 
 	public void buttonsLightOn() {
-		mService.buttonsLightON();
+		try {
+			mService.buttonsLightON();
+		} catch (RemoteException e){}
 	}
 }

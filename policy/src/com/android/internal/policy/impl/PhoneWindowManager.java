@@ -4623,7 +4623,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 	    if ((scanCode == 172 || scanCode == 158
 			    || scanCode == 254)
 				    && event.getAction() == 0
-				    && !isScreenOn) {
+				    && isScreenOn) {
 			    mPowerManager.buttonsLightOn();
 		    }
 
