@@ -5294,7 +5294,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         
 		if ((scanCode == 172 || scanCode == 158 || scanCode == 254)
 				&& event.getAction() == 0) {
-			Log.i(TAG, "VikxLogs: scanCode is + " + scanCode );
+			//Log.i(TAG, "VikxLogs: scanCode is + " + scanCode );
 			mPowerManager.buttonsLightON();
 		}
 
