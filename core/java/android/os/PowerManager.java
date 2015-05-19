@@ -1289,4 +1289,12 @@ public final class PowerManager {
         return mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_keyboardBrightnessSettingDefault);
     }
+    
+	public void buttonsLightON() {
+		try {
+			mService.buttonsLightON();
+		} catch (RemoteException e) {
+		}
+	}
+    
 }

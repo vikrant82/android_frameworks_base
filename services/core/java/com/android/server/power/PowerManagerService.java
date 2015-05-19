@@ -173,6 +173,9 @@ public final class PowerManagerService extends SystemService
     private final Context mContext;
     private final ServiceThread mHandlerThread;
     private final PowerManagerHandler mHandler;
+    
+    private static long buttonNextTimeout = -1;
+    private static int buttonBrightness = 0;
 
     private LightsManager mLightsManager;
     private BatteryManagerInternal mBatteryManagerInternal;
@@ -1634,7 +1637,7 @@ public final class PowerManagerService extends SystemService
                     nextTimeout = mLastUserActivityTime
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
-                        int buttonBrightness, keyboardBrightness;
+                        int keyboardBrightness;
                         if (mButtonBrightnessOverrideFromWindowManager >= 0) {
                             buttonBrightness = mButtonBrightnessOverrideFromWindowManager;
                             keyboardBrightness = mButtonBrightnessOverrideFromWindowManager;
@@ -1647,7 +1650,8 @@ public final class PowerManagerService extends SystemService
                         if (mButtonTimeout != 0 && now > mLastUserActivityTime + mButtonTimeout) {
                              mButtonsLight.setBrightness(0);
                         } else {
-                            mButtonsLight.setBrightness(buttonBrightness);
+                            //mButtonsLight.setBrightness(buttonBrightness);
+                        	if (now > buttonNextTimeout) mButtonsLight.setBrightness(0);
                             if (buttonBrightness != 0 && mButtonTimeout != 0) {
                                 nextTimeout = now + mButtonTimeout;
                             }
@@ -1705,7 +1709,7 @@ public final class PowerManagerService extends SystemService
             }
         }
     }
-
+    
     /**
      * Called when a user activity timeout has occurred.
      * Simply indicates that something about user activity has changed so that the new
@@ -3599,6 +3603,13 @@ public final class PowerManagerService extends SystemService
             } finally {
                 Binder.restoreCallingIdentity(ident);
             }
+        }
+        
+        @Override
+        public void buttonsLightON() {
+    	    long timing = SystemClock.uptimeMillis();
+    	    mButtonsLight.setBrightness(buttonBrightness);
+    	    buttonNextTimeout = timing + mButtonTimeout;
         }
 
         /* updates the blocked uids, so if a wake lock is acquired for it

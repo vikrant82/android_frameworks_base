@@ -5291,6 +5291,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean canceled = event.isCanceled();
         final int keyCode = event.getKeyCode();
         final int scanCode = event.getScanCode();
+        
+		if ((scanCode == 172 || scanCode == 158 || scanCode == 254)
+				&& event.getAction() == 0) {
+			Log.i(TAG, "VikxLogs: scanCode is + " + scanCode );
+			mPowerManager.buttonsLightON();
+		}
 
         if (SystemProperties.getInt("sys.quickboot.enable", 0) == 1) {
 

@@ -73,4 +73,5 @@ interface IPowerManager
 	String getPowerProfile();
 
     void activityResumed(String componentName);
+    void buttonsLightON();
 }
