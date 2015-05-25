@@ -259,7 +259,7 @@ public class CPUInfoService extends Service {
         public void run() {
             try {
                 while (!mInterrupt) {
-                    sleep(500);
+                    sleep(1500);
                     StringBuffer sb=new StringBuffer();
 
                     String cpuTemp = readOneLine(CPU_TEMP_HTC);
