@@ -3545,10 +3545,7 @@ public final class Settings {
          */
         public static final String STATUSBAR_COMPONENT = "statusbar_component";
 
-        /** Network speed indicator
-         * 0 = disabled
-         * 1 = show bits per second
-         * 2 = show Bytes per second
+	    /** Network speed indicator
          * @hide
          */
         public static final String STATUS_BAR_TRAFFIC = "status_bar_traffic";
