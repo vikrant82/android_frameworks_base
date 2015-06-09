@@ -464,16 +464,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.NAVBAR_LEFT_IN_LANDSCAPE), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY), false, this);
-
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.USE_SLIM_RECENTS), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.RECENT_CARD_BG_COLOR), false, this,
-                    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.RECENT_CARD_TEXT_COLOR), false, this,
-                    UserHandle.USER_ALL);
             update();
         }
 
@@ -482,64 +472,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             super.unobserve();
             ContentResolver resolver = mContext.getContentResolver();
             resolver.unregisterContentObserver(this);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            update();
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.BATTERY_SAVER_MODE_COLOR))) {
-                    mBatterySaverWarningColor = Settings.System.getIntForUser(
-                            mContext.getContentResolver(),
-                            Settings.System.BATTERY_SAVER_MODE_COLOR, -2,
-                            UserHandle.USER_CURRENT);
-                    if (mBatterySaverWarningColor == -2) {
-                        mBatterySaverWarningColor = mContext.getResources()
-                                .getColor(com.android.internal.R.color.battery_saver_mode_color);
-                    }
-            } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.HEADS_UP_NOTIFCATION_DECAY))) {
-                    mHeadsUpNotificationDecay = Settings.System.getIntForUser(
-                            mContext.getContentResolver(),
-                            Settings.System.HEADS_UP_NOTIFCATION_DECAY,
-                            mContext.getResources().getInteger(
-                            R.integer.heads_up_notification_decay),
-                            UserHandle.USER_CURRENT);
-                    resetHeadsUpDecayTimer();
-            } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.QS_COLOR_SWITCH))) {
-                    mQSCSwitch = Settings.System.getIntForUser(
-                            mContext.getContentResolver(),
-                            Settings.System.QS_COLOR_SWITCH,
-                            0, UserHandle.USER_CURRENT) == 1;
-                    recreateStatusBar();
-                    updateRowStates();
-                    updateSpeedbump();
-                    updateClearAll();
-                    updateEmptyShadeView();
-            } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.PIE_CONTROLS))) {
-                    attachPieContainer(isPieEnabled());
-            } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.NOTIFICATION_DRAWER_CLEAR_ALL_ICON_COLOR))) {
-                    UpdateNotifDrawerClearAllIconColor();
-            } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.ENABLE_TASK_MANAGER))) {
-                    mShowTaskManager = Settings.System.getIntForUser(
-                            mContext.getContentResolver(),
-                            Settings.System.ENABLE_TASK_MANAGER,
-                            0, UserHandle.USER_CURRENT) == 1;
-                    recreateStatusBar();
-                    updateRowStates();
-                    updateSpeedbump();
-                    updateClearAll();
-                    updateEmptyShadeView();
-            }
-            update();
         }
 
         @Override
