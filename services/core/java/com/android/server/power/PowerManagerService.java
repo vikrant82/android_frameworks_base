@@ -1693,13 +1693,15 @@ public final class PowerManagerService extends SystemService
                         if (mButtonTimeout != 0 && now > mLastUserActivityTime + mButtonTimeout) {
                              mButtonsLight.setBrightness(0);
                         } else {
-                            //mButtonsLight.setBrightness(buttonBrightness);
-                        	if (now > buttonNextTimeout) mButtonsLight.setBrightness(0);
-                            if (buttonBrightness != 0 && mButtonTimeout != 0) {
-                                nextTimeout = now + mButtonTimeout;
+			    if (!mProximityPositive) {
+                                //mButtonsLight.setBrightness(buttonBrightness);
+				if (now > buttonNextTimeout) mButtonsLight.setBrightness(0);
+                                if (buttonBrightness != 0 && mButtonTimeout != 0) {
+                                	nextTimeout = now + mButtonTimeout;
+                            	}
                             }
-                        }
 			}
+		      }
                     } else {
                         nextTimeout = mLastUserActivityTime + screenOffTimeout;
                         if (now < nextTimeout) {
@@ -3056,6 +3058,12 @@ public final class PowerManagerService extends SystemService
     }
 
     private void cleanupProximity() {
+        synchronized (mProximityWakeLock) {
+            cleanupProximityLocked();
+        }
+    }
+
+    private void cleanupProximityLocked() {
         if (mProximityWakeLock.isHeld()) {
             mProximityWakeLock.release();
         }
@@ -3329,28 +3337,30 @@ public final class PowerManagerService extends SystemService
                 r.run();
                 return;
             }
-            mProximityWakeLock.acquire();
-            mProximityListener = new SensorEventListener() {
-                @Override
-                public void onSensorChanged(SensorEvent event) {
-                    cleanupProximity();
-                    if (!mHandler.hasMessages(MSG_WAKE_UP)) {
-                        Slog.w(TAG, "The proximity sensor took too long, wake event already triggered!");
-                        return;
+            synchronized (mProximityWakeLock) {
+                mProximityWakeLock.acquire();
+                mProximityListener = new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        cleanupProximityLocked();
+                        if (!mHandler.hasMessages(MSG_WAKE_UP)) {
+                            Slog.w(TAG, "The proximity sensor took too long, wake event already triggered!");
+                            return;
+                        }
+                        mHandler.removeMessages(MSG_WAKE_UP);
+                        float distance = event.values[0];
+                        if (distance >= PROXIMITY_NEAR_THRESHOLD ||
+                                distance >= mProximitySensor.getMaximumRange()) {
+                            r.run();
+                        }
                     }
-                    mHandler.removeMessages(MSG_WAKE_UP);
-                    float distance = event.values[0];
-                    if (distance >= PROXIMITY_NEAR_THRESHOLD ||
-                            distance >= mProximitySensor.getMaximumRange()) {
-                        r.run();
-                    }
-                }
 
-                @Override
-                public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-            };
-            mSensorManager.registerListener(mProximityListener,
-                   mProximitySensor, SensorManager.SENSOR_DELAY_FASTEST);
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+                };
+                mSensorManager.registerListener(mProximityListener,
+                       mProximitySensor, SensorManager.SENSOR_DELAY_FASTEST);
+            }
         }
 
         @Override // Binder call
