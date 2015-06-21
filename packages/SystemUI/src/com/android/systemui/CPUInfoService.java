@@ -278,12 +278,12 @@ public class CPUInfoService extends Service {
 
                         sb.append(currFreq+":"+currGov+"|");
                     }
-                    sb.deleteCharAt(sb.length()-1);
-                    
+                    sb.deleteCharAt(sb.length() - 1);
+                    sb.append(";");
+
                     String gpuClk = readOneLine(GPU_FREQ);
                     sb.append(gpuClk == null?"0":gpuClk);
-                    sb.append(";");
-                    
+
                     mHandler.sendMessage(mHandler.obtainMessage(1, sb.toString()));
                 }
             } catch (InterruptedException e) {
