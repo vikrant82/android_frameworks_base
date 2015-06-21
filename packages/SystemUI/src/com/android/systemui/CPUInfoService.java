@@ -206,7 +206,12 @@ public class CPUInfoService extends Service {
         }
 
         private String toMHz(String mhzString) {
-            return new StringBuilder().append(Integer.valueOf(mhzString) / 1000).append(" MHz").toString();
+            int mHz = 0;
+            try {
+                mHz = Integer.valueOf(mhzString);
+            } catch (NumberFormatException e) {
+            }
+            return new StringBuilder().append(mHz / 1000).append(" MHz").toString();
         }
 
         public Handler getHandler(){
