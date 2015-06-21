@@ -57,8 +57,8 @@ public class CPUInfoService extends Service {
 
         private String[] mCurrFreq={"0", "0", "0", "0"};
         private String[] mCurrGov={"", "", "", ""};
-        private boolean mLpMode;
         private String mCPUTemp;
+        private String mGPUFreq;
 
         private Handler mCurCPUHandler = new Handler() {
             public void handleMessage(Message msg) {
@@ -71,9 +71,8 @@ public class CPUInfoService extends Service {
                         return;
                     }
                     mCPUTemp=parts[0];
-                    mLpMode = parts[1].equals("1");
 
-                    String[] cpuParts=parts[2].split("\\|");
+                    String[] cpuParts=parts[1].split("\\|");
                     if(cpuParts.length!=4){
                         return;
                     }
@@ -88,6 +87,9 @@ public class CPUInfoService extends Service {
                             mCurrGov[i]="";
                         }
                     }
+                    
+                    mGPUFreq = parts[2];
+                    
                     updateDisplay();
                 }
             }
@@ -132,7 +134,7 @@ public class CPUInfoService extends Service {
             float descent = mOnlinePaint.descent();
             mFH = (int)(descent - mAscent + .5f);
 
-            final String maxWidthStr="cpuX xxxxxxxxxxxxxx 1700000";
+            final String maxWidthStr="cpuX xxxxxxxxxxxxxx 1700";
             mMaxWidth = (int)mOnlinePaint.measureText(maxWidthStr);
 
             updateDisplay();
@@ -179,21 +181,14 @@ public class CPUInfoService extends Service {
 
             for(int i=0; i<mCurrFreq.length; i++){
                 String s=getCPUInfoString(i);
-                String freq=mCurrFreq[i];
-                if(!freq.equals("0")){
-                    if(i==0 && mLpMode){
-                        canvas.drawText(s, RIGHT-mPaddingRight-mMaxWidth,
-                            y-1, mLpPaint);
-                    } else {
-                        canvas.drawText(s, RIGHT-mPaddingRight-mMaxWidth,
-                            y-1, mOnlinePaint);
-                    }
-                } else {
-                    canvas.drawText(s, RIGHT-mPaddingRight-mMaxWidth,
-                        y-1, mOfflinePaint);
-                }
+                String freq=toMHz(mCurrFreq[i]);
+                canvas.drawText(s, RIGHT-mPaddingRight-mMaxWidth, y-1, mOfflinePaint);
                 y += mFH;
             }
+            
+            canvas.drawText("GPU:"+ toMHz(mGPUFreq), RIGHT-mPaddingRight-mMaxWidth,
+                    y-1, mOnlinePaint);
+                y += mFH;
         }
 
         void updateDisplay() {
@@ -226,10 +221,9 @@ public class CPUInfoService extends Service {
         private static final String CURRENT_CPU = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq";
         private static final String CPU_ROOT = "/sys/devices/system/cpu/cpu";
         private static final String CPU_CUR_TAIL = "/cpufreq/scaling_cur_freq";
-        private static final String CPU_LP_MODE = "/sys/kernel/debug/clock/cpu_lp/state";
         private static final String CPU_GOV_TAIL = "/cpufreq/scaling_governor";
-        private static final String CPU_TEMP_HTC = "/sys/htc/cpu_temp";
-        private static final String CPU_TEMP_OPPO = "/sys/class/thermal/thermal_zone0/temp";
+        private static final String CPU_TEMP = "/sys/class/thermal/thermal_zone0/temp";
+        private static final String GPU_FREQ = "/sys/class/kgsl/kgsl-3d0/gpuclk";
 
         public CurCPUThread(Handler handler){
             mHandler=handler;
@@ -259,17 +253,11 @@ public class CPUInfoService extends Service {
         public void run() {
             try {
                 while (!mInterrupt) {
-                    sleep(1500);
+                    sleep(1000);
                     StringBuffer sb=new StringBuffer();
 
-                    String cpuTemp = readOneLine(CPU_TEMP_HTC);
-                    if (cpuTemp == null){
-                        cpuTemp = readOneLine(CPU_TEMP_OPPO);
-                    }
+                    String cpuTemp = readOneLine(CPU_TEMP);
                     sb.append(cpuTemp == null?"0":cpuTemp);
-                    sb.append(";");
-                    String lpMode = readOneLine(CPU_LP_MODE);
-                    sb.append(lpMode == null?"0":lpMode);
                     sb.append(";");
 
                     for(int i=0; i<4; i++){
@@ -286,6 +274,11 @@ public class CPUInfoService extends Service {
                         sb.append(currFreq+":"+currGov+"|");
                     }
                     sb.deleteCharAt(sb.length()-1);
+                    
+                    String gpuClk = readOneLine(GPU_FREQ);
+                    sb.append(gpuClk == null?"0":gpuClk);
+                    sb.append(";");
+                    
                     mHandler.sendMessage(mHandler.obtainMessage(1, sb.toString()));
                 }
             } catch (InterruptedException e) {
