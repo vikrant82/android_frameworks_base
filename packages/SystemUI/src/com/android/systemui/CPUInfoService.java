@@ -158,7 +158,7 @@ public class CPUInfoService extends Service {
         }
 
         private String getCPUInfoString(int i) {
-            String freq=mCurrFreq[i];
+            String freq=toMHz(mCurrFreq[i]);
             String gov=mCurrGov[i];
             return "cpu:"+i+" "+gov+":"+freq;
         }
@@ -170,25 +170,25 @@ public class CPUInfoService extends Service {
             final int RIGHT = getWidth()-1;
 
             int x = RIGHT - mPaddingRight;
-            int top = mPaddingTop + 2;
-            int bottom = mPaddingTop + mFH - 2;
-
             int y = mPaddingTop - (int)mAscent;
 
-            canvas.drawText("Temp:"+mCPUTemp, RIGHT-mPaddingRight-mMaxWidth,
+            canvas.drawText("Temp:"+mCPUTemp+" gpu:"+toMHz1000(mGPUFreq), RIGHT-mPaddingRight-mMaxWidth,
                 y-1, mOnlinePaint);
             y += mFH;
 
             for(int i=0; i<mCurrFreq.length; i++){
                 String s=getCPUInfoString(i);
-                String freq=toMHz(mCurrFreq[i]);
-                canvas.drawText(s, RIGHT-mPaddingRight-mMaxWidth, y-1, mOfflinePaint);
+                String freq=mCurrFreq[i];
+                if(!freq.equals("0")){
+                    canvas.drawText(s, RIGHT-mPaddingRight-mMaxWidth,
+                            y-1, mOnlinePaint);
+                } else {
+                    canvas.drawText(s, RIGHT-mPaddingRight-mMaxWidth,
+                        y-1, mOfflinePaint);
+                }
                 y += mFH;
             }
-            
-            canvas.drawText("GPU:"+ toMHz(mGPUFreq), RIGHT-mPaddingRight-mMaxWidth,
-                    y-1, mOnlinePaint);
-                y += mFH;
+            y += mFH;
         }
 
         void updateDisplay() {
@@ -211,7 +211,16 @@ public class CPUInfoService extends Service {
                 mHz = Integer.valueOf(mhzString);
             } catch (NumberFormatException e) {
             }
-            return new StringBuilder().append(mHz / 1000).append(" MHz").toString();
+            return new StringBuilder().append(mHz / 1000).toString();
+        }
+        
+        private String toMHz1000(String mhzString) {
+            int mHz = 0;
+            try {
+                mHz = Integer.valueOf(mhzString);
+            } catch (NumberFormatException e) {
+            }
+            return new StringBuilder().append(mHz / 1000000).toString();
         }
 
         public Handler getHandler(){
