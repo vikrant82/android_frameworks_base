@@ -132,6 +132,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.net.Uri;
 
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.util.cm.ActionUtils;
@@ -480,19 +481,19 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         public void onChange(boolean selfChange, Uri uri) {
             if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.HEADS_UP_NOTIFCATION_DECAY))) {
+                    "HEADS_UP_NOTIFCATION_DECAY"))) {
                     mHeadsUpNotificationDecay = Settings.System.getIntForUser(
                             mContext.getContentResolver(),
-                            Settings.System.HEADS_UP_NOTIFCATION_DECAY,
+                            "HEADS_UP_NOTIFCATION_DECAY",
                             mContext.getResources().getInteger(
                             R.integer.heads_up_notification_decay),
                             UserHandle.USER_CURRENT);
                     resetHeadsUpDecayTimer();
             } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_TICKER_ENABLED))) {
+                    "STATUS_BAR_TICKER_ENABLED"))) {
                     mTickerEnabled = Settings.System.getIntForUser(
                             mContext.getContentResolver(),
-                            Settings.System.STATUS_BAR_TICKER_ENABLED,
+                            "STATUS_BAR_TICKER_ENABLED",
                             mContext.getResources().getBoolean(R.bool.enable_ticker)
                             ? 1 : 0, UserHandle.USER_CURRENT) != 0;
                     initTickerView();
