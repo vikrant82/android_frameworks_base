@@ -1609,7 +1609,7 @@ public class NotificationPanelView extends PanelView implements
                 * mKeyguardStatusBarAnimateAlpha);
         float alphaBottomArea = Math.min(1 - getQsExpansionFraction(), alphaNotifications);
         mKeyguardBottomArea.setAlpha(alphaBottomArea);
-        mStatusBar.setVisualizerAlpha(alphaBottomArea);
+        mStatusBar.getVisualizer().setAlpha(alphaBottomArea);
         setQsTranslation(mQsExpansionHeight);
     }
 
@@ -2115,7 +2115,7 @@ public class NotificationPanelView extends PanelView implements
     private KeyguardUpdateMonitorCallback mInfoCallback = new KeyguardUpdateMonitorCallback() {
         @Override
         public void onFingerprintAttemptFailed() {
-            if (!mStatusBar.isBouncerShowing()) {
+            if (!mStatusBar.isBouncerShowing() && mStatusBar.isScreenOnFromKeyguard()) {
                 NotificationPanelView.super.startHintAnimation(true /* fingerprintHint */);
             }
         }

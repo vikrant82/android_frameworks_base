@@ -1302,8 +1302,6 @@ public final class ActivityManagerService extends ActivityManagerNative
     final UiHandler mUiHandler;
     final CpuTrackerHandler mCpuTrackerHandler;
 
-    static KillProcessBackground mKillProcessHandler;
-
     final class UiHandler extends Handler {
         public UiHandler() {
             super(com.android.server.UiThread.get().getLooper(), null, true);
@@ -1898,21 +1896,6 @@ public final class ActivityManagerService extends ActivityManagerNative
     static final int SCHEDULE_CPU_STATS_MSG = 1;
     static final int UPDATE_CPU_STATS_MSG = 2;
 
-    final class KillProcessBackground extends Handler {
-        public KillProcessBackground(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-            case KILL_PROCESS_GROUP_MSG:
-                killProcessGroupBackground(msg.arg1, msg.arg2);
-            break;
-            }
-        }
-    };
-
     final class CpuTrackerHandler extends Handler {
         public CpuTrackerHandler(Looper looper) {
             super(looper);
@@ -1949,10 +1932,9 @@ public final class ActivityManagerService extends ActivityManagerNative
             removeMessages(UPDATE_CPU_STATS_MSG);
             sendEmptyMessage(UPDATE_CPU_STATS_MSG);
         }
-    };
+    }
 
     static final int COLLECT_PSS_BG_MSG = 1;
-    static final int KILL_PROCESS_GROUP_MSG = 44;
 
     final Handler mBgHandler = new Handler(BackgroundThread.getHandler().getLooper()) {
         @Override
@@ -2213,8 +2195,6 @@ public final class ActivityManagerService extends ActivityManagerNative
         HandlerThread cpuTrackerThread = new HandlerThread("CpuTracker");
         cpuTrackerThread.start();
         mCpuTrackerHandler = new CpuTrackerHandler(cpuTrackerThread.getLooper());
-
-        mKillProcessHandler = new KillProcessBackground(BackgroundThread.getHandler().getLooper());
 
         mFgBroadcastQueue = new BroadcastQueue(this, mHandler,
                 "foreground", BROADCAST_FG_TIMEOUT, false);
@@ -2603,7 +2583,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             if (!app.killed) {
                 Slog.wtfStack(TAG, "Removing process that hasn't been killed: " + app);
                 Process.killProcessQuiet(app.pid);
-                killProcessGroup(app.info.uid, app.pid);
+                Process.killProcessGroup(app.info.uid, app.pid);
             }
             if (lrui <= mLruProcessActivityStart) {
                 mLruProcessActivityStart--;
@@ -2970,7 +2950,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             // clean it up now.
             if (DEBUG_PROCESSES || DEBUG_CLEANUP) Slog.v(TAG, "App died: " + app);
             checkTime(startTime, "startProcess: bad proc running, killing");
-            killProcessGroup(app.info.uid, app.pid);
+            Process.killProcessGroup(app.info.uid, app.pid);
             handleAppDiedLocked(app, true, true);
             checkTime(startTime, "startProcess: done killing old proc");
         }
@@ -3540,7 +3520,8 @@ public final class ActivityManagerService extends ActivityManagerNative
             if (sourceRecord == null) {
                 throw new SecurityException("Called with bad activity token: " + resultTo);
             }
-            if (!sourceRecord.info.packageName.equals("android")) {
+            if (!sourceRecord.info.packageName.equals("android") &&
+                    !sourceRecord.info.packageName.equals("org.cyanogenmod.resolver")) {
                 throw new SecurityException(
                         "Must be called from an activity that is declared in the android package");
             }
@@ -4855,7 +4836,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             if (!fromBinderDied) {
                 Process.killProcessQuiet(pid);
             }
-            killProcessGroup(app.info.uid, pid);
+            Process.killProcessGroup(app.info.uid, pid);
             app.killed = true;
         }
 
@@ -12358,7 +12339,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                             } else {
                                 // Huh.
                                 Process.killProcess(pid);
-                                killProcessGroup(uid, pid);
+                                Process.killProcessGroup(uid, pid);
                             }
                         }
                         return;
@@ -17270,24 +17251,6 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
     }
 
-    static final boolean DEBUG_KILL_ASYNC = true;
-    static public void killProcessGroup(final int uid , final int pid) {
-        if (mKillProcessHandler == null) {
-            Slog.w(TAG, "thread for killProcessGroup is not ready");
-            Process.killProcessGroup(uid, pid);
-            return;
-        }
-        mKillProcessHandler.sendMessage(mKillProcessHandler.obtainMessage(KILL_PROCESS_GROUP_MSG, uid, pid));
-    }
-
-    private void killProcessGroupBackground(int uid , int pid) {
-        long now = SystemClock.uptimeMillis();
-        Process.killProcessGroup(uid, pid);
-        if (DEBUG_KILL_ASYNC) Slog.v(TAG, "killProcessGroupAsync took "
-            + (SystemClock.uptimeMillis() - now) + " ms for PID " + pid
-            + " on thread " + Thread.currentThread().getId());
-    }
-
     private final int computeOomAdjLocked(ProcessRecord app, int cachedAdj, ProcessRecord TOP_APP,
             boolean doingAll, long now) {
         if (mAdjSeq == app.adjSeq) {
@@ -18598,7 +18561,8 @@ public final class ActivityManagerService extends ActivityManagerNative
         int numBServices = 0;
         for (int i=N-1; i>=0; i--) {
             ProcessRecord app = mLruProcesses.get(i);
-            if (ProcessList.ENABLE_B_SERVICE_PROPAGATION && app.serviceb) {
+            if (ProcessList.ENABLE_B_SERVICE_PROPAGATION && app.serviceb
+                    && (app.curAdj==ProcessList.SERVICE_B_ADJ)) {
                 numBServices++;
                 for (int s=app.services.size()-1; s>=0; s--) {
                     ServiceRecord sr = app.services.valueAt(s);
