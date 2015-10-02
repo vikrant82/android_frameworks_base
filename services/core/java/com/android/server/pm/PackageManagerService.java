@@ -1505,9 +1505,11 @@ public class PackageManagerService extends IPackageManager.Stub {
 
             mRestoredSettings = mSettings.readLPw(this, sUserManager.getUsers(false),
                     mSdkVersion, mOnlyCore);
-
-            String customResolverActivity = Resources.getSystem().getString(
-                    R.string.config_customResolverActivity);
+            String customResolverActivity = SystemProperties.get("ro.custom.resolver.activity");
+            if (TextUtils.isEmpty(customResolverActivity)) {
+                customResolverActivity = Resources.getSystem().getString(
+                        R.string.config_customResolverActivity);
+            }
             if (TextUtils.isEmpty(customResolverActivity)) {
                 customResolverActivity = null;
             } else {
@@ -3349,6 +3351,17 @@ public class PackageManagerService extends IPackageManager.Stub {
                     return ri;
                 }
                 return mResolveInfo;
+            } else if (shouldIncludeResolveActivity(intent)) {
+                if (userId != 0) {
+                    ResolveInfo ri = new ResolveInfo(mResolveInfo);
+                    ri.activityInfo = new ActivityInfo(ri.activityInfo);
+                    ri.activityInfo.applicationInfo = new ApplicationInfo(
+                            ri.activityInfo.applicationInfo);
+                    ri.activityInfo.applicationInfo.uid = UserHandle.getUid(userId,
+                            UserHandle.getAppId(ri.activityInfo.applicationInfo.uid));
+                    return ri;
+                }
+                return mResolveInfo;
             }
         }
         return null;
@@ -3594,7 +3607,7 @@ public class PackageManagerService extends IPackageManager.Stub {
     private boolean shouldIncludeResolveActivity(Intent intent) {
         synchronized(mPackages) {
             AppSuggestManager suggest = AppSuggestManager.getInstance(mContext);
-            return (suggest != null) ? suggest.handles(intent) : false;
+            return mResolverReplaced && (suggest != null) ? suggest.handles(intent) : false;
         }
     }
 
@@ -3646,9 +3659,6 @@ public class PackageManagerService extends IPackageManager.Stub {
                 if (resolveInfo != null) {
                     result.add(resolveInfo);
                     Collections.sort(result, mResolvePrioritySorter);
-                }
-                if (result.size() == 0 && shouldIncludeResolveActivity(intent)) {
-                    result.add(mResolveInfo);
                 }
                 return result;
             }
